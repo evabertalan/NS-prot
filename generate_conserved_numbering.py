@@ -248,16 +248,20 @@ def _renumber_pdb(
     return pdb_sequence_df
 
 
-
-    
 def renumber_pdb(
-        sequence_conservation: pd.DataFrame,
-        pdb_file: Union[str, Path],
-        pdb_id: str,
-        protein_name_in_alignment: str,
-        folder_to_save_results: Union[str, Path],
-    ) -> None:
-    pdb_sequence_df = _renumber_pdb(sequence_conservation, pdb_file, pdb_id, protein_name_in_alignment, folder_to_save_results)
+    sequence_conservation: pd.DataFrame,
+    pdb_file: Union[str, Path],
+    pdb_id: str,
+    protein_name_in_alignment: str,
+    folder_to_save_results: Union[str, Path],
+) -> None:
+    pdb_sequence_df = _renumber_pdb(
+        sequence_conservation,
+        pdb_file,
+        pdb_id,
+        protein_name_in_alignment,
+        folder_to_save_results,
+    )
     protein_struct = _mda.Universe(pdb_file)
     og_struct = _mda.Universe(pdb_file)
     for i, res in enumerate(og_struct.atoms):
@@ -271,18 +275,24 @@ def renumber_pdb(
     protein_struct.atoms.write(
         os.path.join(folder_to_save_results, f"{pdb_id.lower()}_renum.pdb")
     )
-    
+
+
 def add_NS_numbers_to_pdb(
-        sequence_conservation: pd.DataFrame,
-        pdb_file: Union[str, Path],
-        pdb_id: str,
-        protein_name_in_alignment: str,
-        folder_to_save_results: Union[str, Path],
-    ) -> None:
-    
-    pdb_sequence_df = _renumber_pdb(sequence_conservation, pdb_file, pdb_id, protein_name_in_alignment, folder_to_save_results)
+    sequence_conservation: pd.DataFrame,
+    pdb_file: Union[str, Path],
+    pdb_id: str,
+    protein_name_in_alignment: str,
+    folder_to_save_results: Union[str, Path],
+) -> None:
+    pdb_sequence_df = _renumber_pdb(
+        sequence_conservation,
+        pdb_file,
+        pdb_id,
+        protein_name_in_alignment,
+        folder_to_save_results,
+    )
     protein_struct = _mda.Universe(pdb_file)
-    
+
     for i, res in enumerate(protein_struct.atoms):
         row = pdb_sequence_df.loc[pdb_sequence_df["res_id"] == res.resid]
         if len(row) and row["helix_number"].values[0] in [1, 2, 3, 4, 5, 6, 7]:
@@ -290,5 +300,7 @@ def add_NS_numbers_to_pdb(
             res.tempfactor = float(NS_number)
         else:
             res.tempfactor = 0
-    
-    protein_struct.atoms.write(os.path.join(folder_to_save_results, f"{pdb_id.lower()}_with_NS.pdb"))
+
+    protein_struct.atoms.write(
+        os.path.join(folder_to_save_results, f"{pdb_id.lower()}_with_NS.pdb")
+    )
